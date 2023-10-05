@@ -6,22 +6,36 @@ from Judge_Agent import Judge_Agent
 from Plantiff_Agent import Plantiff_Agent
 from Defendant_Agent import Defendant_Agent
 
-openai_api_keys = [
-    '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',
-    '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',
-    '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'
-]
-
 
 
 with st.sidebar:
-    case = st.text_input('案件事实', '')
-    laws = st.text_input('相关法条', '')
+    api_key_input1 = st.text_input(
+        "OpenAI API Key1",
+        type="password",
+        placeholder="Paste your OpenAI API key here (sk-...)",
+        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    )
+    api_key_input2 = st.text_input(
+        "OpenAI API Key2",
+        type="password",
+        placeholder="Paste your OpenAI API key here (sk-...)",
+        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    )
+    api_key_input3 = st.text_input(
+        "OpenAI API Key3",
+        type="password",
+        placeholder="Paste your OpenAI API key here (sk-...)",
+        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    )
+
+    case = st.text_area('案件事实', '')
+    laws = st.text_area('相关法条', '')
     plantiff = st.text_input('原告', '')
-    plantiff_evidences = st.text_input('原告证据', '')
+    plantiff_evidences = st.text_area('原告证据', '')
     defendant = st.text_input('被告', '')
-    defendant_evidences = st.text_input('被告证据', '')
+    defendant_evidences = st.text_area('被告证据', '')
     start = st.button("Let's go!", type="primary")
+
 
 st.title('MootCourt :male-judge:')
 # class Court(): // court类相当于主持人的作用，控制整个流程？
@@ -36,11 +50,11 @@ class Court:
 
                  ) -> None:
         self.judge_agent = Judge_Agent(model_name="gpt-3.5-turbo-16k", name="法官", temperature=0.1,
-                                       openai_api_key=openai_api_keys[0])
+                                       openai_api_key=api_key_input1)
         self.plantiff_agent = Plantiff_Agent(model_name="gpt-3.5-turbo-16k", name="原告方", temperature=0.5,
-                                             openai_api_key=openai_api_keys[1])
+                                             openai_api_key=api_key_input2)
         self.defendant_agent = Defendant_Agent(model_name="gpt-3.5-turbo-16k", name="被告方", temperature=0.5,
-                                               openai_api_key=openai_api_keys[2])
+                                               openai_api_key=api_key_input3)
         self.disputed_points = ''
         self.investigate_process = ''
         self.evidence_process = ''
@@ -58,6 +72,7 @@ class Court:
             "现在是一场庭审现场，有审判长，原告方，被告方三种角色，你是被告方的代理律师，你的目标是在法庭上依据现实情况和已有证据努力维护被告的利益，在遵循法律的条件下赢下这场官司。法庭采取问询制度，每轮审问审判长仅面向一人（原告或被告）要求做出回答，法官未要求你陈述时不得发言，扰乱秩序。回答要简洁有理，首先表明身份，如：被告方：xx。//现有案件如下：{}//现在进入开庭，你是被告：{}的代理律师，可参考的法律条文有{},请等待审判长提问，确认你的信息，并分点提出你方的诉求:".format(case,defendant,laws))
 
     def investigate(self):
+        st.subheader('法庭调查', divider='rainbow')
         judge_prompt = '请审判长宣布进行法庭调查，可以选择是否对调查程序进行详细的说明。请原告方宣读起诉状起诉书。'
         self.judge_agent.add_event(judge_prompt)
         response = self.judge_agent.ask()
@@ -122,6 +137,7 @@ class Court:
 
 
     def evidence(self,plantiff_evidences,defendant_evidences):
+        st.subheader('举证质证', divider='rainbow')
         #原告方举证、被告方质证
         judge_prompt = '请审判长宣布进入举证质证环节，首先由原告进行举证。'
         self.judge_agent.add_event(judge_prompt)
@@ -204,7 +220,7 @@ class Court:
 
 
     def debate(self):
-
+        st.subheader('法庭辩论', divider='rainbow')
         judge_prompt = "下面进入法庭辩论环节，辩论环节针对争议焦点展开，你需要对每个争议焦点主持一轮辩论，整个流程为：原告发表辩论意见-被告被告发表辩论意见......，即原被告交替发表辩论意见，直至双方均无新的意见补充时结束本环节。每轮辩论提问时，你需要指出询问对象并在文本末尾标注label，0表示提问原告，1表示提问被告，如，'审判长：由原告回答xxx（label：0）。首先请你由原告发表辩论意见（label：0）。"
         plantiff_prompt = '''下面进入法庭辩论环节，当审判长提问你时，你需要发表辩论意见，辩论意见可以结合被告答辩状、被告质证、被告举证的内容，从法律适用、事实认定、程序合法性等方面考虑 。
         '''
@@ -256,6 +272,7 @@ class Court:
         # print("plantiff_agent.memory_lst",self.plantiff_agent.memory_lst)
 
     def final_statement(self):
+        st.subheader('最后陈述', divider='rainbow')
         judge_prompt = "双方无新的辩论意见或发表与案件争议焦点无关的意见后，开始进入最后陈述环节，首先请你由原告进行最后陈述。"
         self.judge_agent.add_event(judge_prompt)
         response = self.judge_agent.ask()
