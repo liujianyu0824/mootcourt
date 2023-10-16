@@ -6,34 +6,53 @@ from Judge_Agent import Judge_Agent
 from Plantiff_Agent import Plantiff_Agent
 from Defendant_Agent import Defendant_Agent
 
+openai_api_keys = [
+        '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',
+        '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',
+        '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'
+        ]
 
+with open('./laws.txt','r', encoding='utf-8') as file:
+    laws = file.read()
+
+plantiff_evidences = '''
+1、被告工商登记信息	；证明目的：伯乐公司是一家有偿经营相关人力资源信息的专业数据服务提供商，为不正当竞争纠纷适格主体。
+2、俊杰平台《隐私政策》、俊杰平台《用户协议》；证明目的：伯乐公司无权擅自搜集、分析、加工和使用俊杰公司网上的信息，侵犯了该平台上用户的信息权益。
+3、俊杰公司2020年11月2日向伯乐公司发出的《律师函》、伯乐公司11月30日回函；证明目的：俊杰公司要求伯乐公司停止不正当竞争行为，伯乐公司拒绝。
+'''
+
+defendant_evidences = '''
+1、俊杰平台《隐私政策》、俊杰平台《用户协议》；证明目的：用户档案信息为公开信息，伯乐公司仅利用公开的信息进行合理的数据分析。
+2、伯乐公司《隐私政策》；证明目的伯乐公司对数据安全持审慎态度，用户 有权要求伯乐公司随时删除其公开信息。
+3、俊杰公司于2018年上半年起曾数次派员参加伯乐公司会议的《会议纪要》；证明目的：俊杰公司一直知晓并默认伯乐公司的行为
+'''
 
 with st.sidebar:
-    api_key_input1 = st.text_input(
-        "OpenAI API Key1",
-        type="password",
-        placeholder="Paste your OpenAI API key here (sk-...)",
-        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-    )
-    api_key_input2 = st.text_input(
-        "OpenAI API Key2",
-        type="password",
-        placeholder="Paste your OpenAI API key here (sk-...)",
-        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-    )
-    api_key_input3 = st.text_input(
-        "OpenAI API Key3",
-        type="password",
-        placeholder="Paste your OpenAI API key here (sk-...)",
-        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-    )
+    # api_key_input1 = st.text_input(
+    #     "OpenAI API Key1",
+    #     type="password",
+    #     placeholder="Paste your OpenAI API key here (sk-...)",
+    #     help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    # )
+    # api_key_input2 = st.text_input(
+    #     "OpenAI API Key2",
+    #     type="password",
+    #     placeholder="Paste your OpenAI API key here (sk-...)",
+    #     help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    # )
+    # api_key_input3 = st.text_input(
+    #     "OpenAI API Key3",
+    #     type="password",
+    #     placeholder="Paste your OpenAI API key here (sk-...)",
+    #     help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    # )
 
     case = st.text_area('案件事实', '')
-    laws = st.text_area('相关法条', '')
+    # laws = st.text_area('相关法条', '')
     plantiff = st.text_input('原告', '')
-    plantiff_evidences = st.text_area('原告证据', '')
+    # plantiff_evidences = st.text_area('原告证据', '')
     defendant = st.text_input('被告', '')
-    defendant_evidences = st.text_area('被告证据', '')
+    # defendant_evidences = st.text_area('被告证据', '')
     start = st.button("Let's go!", type="primary")
 
 
@@ -50,11 +69,11 @@ class Court:
 
                  ) -> None:
         self.judge_agent = Judge_Agent(model_name="gpt-3.5-turbo-16k", name="法官", temperature=0.1,
-                                       openai_api_key=api_key_input1)
+                                       openai_api_key=openai_api_keys[0])
         self.plantiff_agent = Plantiff_Agent(model_name="gpt-3.5-turbo-16k", name="原告方", temperature=0.5,
-                                             openai_api_key=api_key_input2)
+                                             openai_api_key=openai_api_keys[1])
         self.defendant_agent = Defendant_Agent(model_name="gpt-3.5-turbo-16k", name="被告方", temperature=0.5,
-                                               openai_api_key=api_key_input3)
+                                               openai_api_key=openai_api_keys[2])
         self.disputed_points = ''
         self.investigate_process = ''
         self.evidence_process = ''
