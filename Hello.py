@@ -6,11 +6,6 @@ from Judge_Agent import Judge_Agent
 from Plantiff_Agent import Plantiff_Agent
 from Defendant_Agent import Defendant_Agent
 
-openai_api_keys = [
-        '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',
-        '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',
-        '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'
-        ]
 
 with open('./laws.txt','r', encoding='utf-8') as file:
     laws = file.read()
@@ -28,24 +23,24 @@ defendant_evidences = '''
 '''
 
 with st.sidebar:
-    # api_key_input1 = st.text_input(
-    #     "OpenAI API Key1",
-    #     type="password",
-    #     placeholder="Paste your OpenAI API key here (sk-...)",
-    #     help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-    # )
-    # api_key_input2 = st.text_input(
-    #     "OpenAI API Key2",
-    #     type="password",
-    #     placeholder="Paste your OpenAI API key here (sk-...)",
-    #     help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-    # )
-    # api_key_input3 = st.text_input(
-    #     "OpenAI API Key3",
-    #     type="password",
-    #     placeholder="Paste your OpenAI API key here (sk-...)",
-    #     help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
-    # )
+    api_key_input1 = st.text_input(
+        "OpenAI API Key1",
+        type="password",
+        placeholder="Paste your OpenAI API key here (sk-...)",
+        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    )
+    api_key_input2 = st.text_input(
+        "OpenAI API Key2",
+        type="password",
+        placeholder="Paste your OpenAI API key here (sk-...)",
+        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    )
+    api_key_input3 = st.text_input(
+        "OpenAI API Key3",
+        type="password",
+        placeholder="Paste your OpenAI API key here (sk-...)",
+        help="You can get your API key from https://platform.openai.com/account/api-keys.",  # noqa: E501
+    )
 
     case = st.text_area('案件事实', '')
     # laws = st.text_area('相关法条', '')
@@ -69,11 +64,11 @@ class Court:
 
                  ) -> None:
         self.judge_agent = Judge_Agent(model_name="gpt-3.5-turbo-16k", name="法官", temperature=0.1,
-                                       openai_api_key=openai_api_keys[0])
+                                       openai_api_key=api_key_input1)
         self.plantiff_agent = Plantiff_Agent(model_name="gpt-3.5-turbo-16k", name="原告方", temperature=0.5,
-                                             openai_api_key=openai_api_keys[1])
+                                             openai_api_key=api_key_input2)
         self.defendant_agent = Defendant_Agent(model_name="gpt-3.5-turbo-16k", name="被告方", temperature=0.5,
-                                               openai_api_key=openai_api_keys[2])
+                                               openai_api_key=api_key_input3)
         self.disputed_points = ''
         self.investigate_process = ''
         self.evidence_process = ''
